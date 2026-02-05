@@ -55,9 +55,6 @@ class ToolManager {
       case 'watermark':
         this.renderWatermarkTools();
         break;
-      case 'export':
-        this.renderExportTools();
-        break;
       default:
         this.toolContent.innerHTML = '<p>Tool not found</p>';
     }
@@ -576,116 +573,6 @@ class ToolManager {
     `;
   }
 
-  renderExportTools() {
-    this.toolContent.innerHTML = `
-      <div class="tool-section">
-        <h3>Export Image</h3>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
-          Download your edited image
-        </p>
-        
-        <div class="tool-control">
-          <label>Format</label>
-          <select class="input" id="export-format">
-            <option value="image/png">PNG (Lossless)</option>
-            <option value="image/jpeg">JPEG (Compressed)</option>
-            <option value="image/webp">WebP (Modern)</option>
-          </select>
-        </div>
-
-        <div class="tool-control" id="quality-control">
-          <label>Quality</label>
-          <div class="tool-control-row">
-            <input type="range" class="slider" id="export-quality" min="0" max="100" value="90">
-            <span class="tool-value" id="quality-value">90%</span>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" style="width: 100%;" id="download-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Download Image
-        </button>
-      </div>
-
-      <div class="tool-section">
-        <h3>Multi-File Export</h3>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
-          Export multiple files at once
-        </p>
-        
-        <button class="btn btn-secondary" style="width: 100%;" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Download All as ZIP
-        </button>
-        
-        <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-          Combine to PDF
-        </button>
-        
-        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 1rem;">
-          Multi-file export coming soon
-        </p>
-      </div>
-    `;
-
-    this.setupExportToolListeners();
-  }
-
-  setupExportToolListeners() {
-    const formatSelect = document.getElementById('export-format');
-    const qualityControl = document.getElementById('quality-control');
-    const qualitySlider = document.getElementById('export-quality');
-    const qualityValue = document.getElementById('quality-value');
-    const downloadBtn = document.getElementById('download-btn');
-
-    // Show/hide quality control based on format
-    formatSelect.addEventListener('change', () => {
-      const format = formatSelect.value;
-      if (format === 'image/png') {
-        qualityControl.style.display = 'none';
-      } else {
-        qualityControl.style.display = 'block';
-      }
-    });
-
-    qualitySlider.addEventListener('input', () => {
-      qualityValue.textContent = qualitySlider.value + '%';
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      if (!this.canvasEngine || !this.canvasEngine.workingImage) {
-        alert('No image to download');
-        return;
-      }
-
-      const format = formatSelect.value;
-      const quality = parseInt(qualitySlider.value) / 100;
-
-      const dataURL = this.canvasEngine.getImageDataURL(format, quality);
-      
-      // Create download link
-      const link = document.createElement('a');
-      const activeFile = window.fileManager.getActiveFile();
-      const fileName = activeFile ? activeFile.name.replace(/\.[^/.]+$/, '') : 'edited-image';
-      const extension = format.split('/')[1];
-      
-      link.download = `${fileName}-edited.${extension}`;
-      link.href = dataURL;
-      link.click();
-    });
-  }
 }
 
 export { ToolManager };

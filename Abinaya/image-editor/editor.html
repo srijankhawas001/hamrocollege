@@ -20,7 +20,9 @@
     <!-- Header Bar -->
     <header class="header">
       <div class="header-left">
-        <div class="logo">🎨 Image Editor</div>
+        <a href="index.html" class="logo" style="text-decoration: none; color: inherit; cursor: pointer;" title="Back to Upload">
+          🎨 Image Editor
+        </a>
       </div>
       
       <div class="header-right">
@@ -62,6 +64,37 @@
       
       <div class="file-list" id="file-list">
         <!-- Files will be populated here -->
+      </div>
+      
+      <!-- Export Section -->
+      <div class="export-section" id="export-section">
+        <h3 style="font-size: 0.875rem; margin-bottom: 0.75rem; color: var(--text-secondary);">Export</h3>
+        
+        <div class="tool-control" style="margin-bottom: 0.75rem;">
+          <label style="font-size: 0.75rem;">Format</label>
+          <select class="input" id="export-format" style="font-size: 0.875rem;">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
+          </select>
+        </div>
+        
+        <div class="tool-control" id="quality-control" style="margin-bottom: 0.75rem; display: none;">
+          <label style="font-size: 0.75rem;">Quality</label>
+          <div class="tool-control-row">
+            <input type="range" class="slider" id="export-quality" min="0" max="100" value="90">
+            <span class="tool-value" id="quality-value">90%</span>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%;" id="download-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download
+        </button>
       </div>
       
       <input type="file" id="file-input-editor" accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf" multiple hidden>
@@ -119,6 +152,14 @@
               <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
             </svg>
             Before / After
+          </button>
+          
+          <button class="btn btn-secondary btn-icon" id="fullscreen-btn" title="Fullscreen">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+              <polyline points="15 10 20 10 20 15"></polyline>
+              <polyline points="9 14 4 14 4 9"></polyline>
+            </svg>
           </button>
         </div>
       </div>
@@ -194,14 +235,7 @@
           <span>Watermark</span>
         </button>
         
-        <button class="tool-category-btn" data-tool="export">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          <span>Export</span>
-        </button>
+
       </div>
       
       <div class="tool-content" id="tool-content">

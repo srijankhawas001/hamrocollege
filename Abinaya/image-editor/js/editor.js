@@ -34,6 +34,14 @@ const fitScreenBtn = document.getElementById('fit-screen-btn');
 const undoBtn = document.getElementById('undo-btn');
 const redoBtn = document.getElementById('redo-btn');
 const beforeAfterBtn = document.getElementById('before-after-btn');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+// Export controls
+const exportFormat = document.getElementById('export-format');
+const exportQuality = document.getElementById('export-quality');
+const qualityControl = document.getElementById('quality-control');
+const qualityValue = document.getElementById('quality-value');
+const downloadBtn = document.getElementById('download-btn');
 
 // Initialize
 window.addEventListener('DOMContentLoaded', init);
@@ -116,6 +124,23 @@ function setupEventListeners() {
   undoBtn.addEventListener('click', handleUndo);
   redoBtn.addEventListener('click', handleRedo);
   beforeAfterBtn.addEventListener('click', toggleBeforeAfter);
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+  
+  // Export controls
+  exportFormat.addEventListener('change', () => {
+    const format = exportFormat.value;
+    if (format === 'image/png') {
+      qualityControl.style.display = 'none';
+    } else {
+      qualityControl.style.display = 'block';
+    }
+  });
+  
+  exportQuality.addEventListener('input', () => {
+    qualityValue.textContent = exportQuality.value + '%';
+  });
+  
+  downloadBtn.addEventListener('click', handleDownload);
   
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
@@ -126,6 +151,12 @@ function setupEventListeners() {
       } else if (e.key === 'z' && e.shiftKey || e.key === 'y') {
         e.preventDefault();
         handleRedo();
+      }
+    } else if (e.key === 'Escape') {
+      // Close fullscreen on ESC
+      const fullscreenOverlay = document.querySelector('.fullscreen-overlay');
+      if (fullscreenOverlay && !fullscreenOverlay.classList.contains('hidden')) {
+        fullscreenOverlay.classList.add('hidden');
       }
     }
   });
@@ -324,6 +355,76 @@ function toggleBeforeAfter() {
     beforeAfterBtn.style.background = '';
     beforeAfterBtn.style.color = '';
   }
+}
+
+/**
+ * Toggle fullscreen view
+ */
+function toggleFullscreen() {
+  if (!canvasEngine || !canvasEngine.workingImage) {
+    alert('No image to view in fullscreen');
+    return;
+  }
+  
+  // Create fullscreen overlay if it doesn't exist
+  let overlay = document.querySelector('.fullscreen-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'fullscreen-overlay hidden';
+    
+    const img = document.createElement('img');
+    overlay.appendChild(img);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'fullscreen-close';
+    closeBtn.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    `;
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.classList.add('hidden');
+    });
+    
+    overlay.appendChild(closeBtn);
+    overlay.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+    });
+    
+    document.body.appendChild(overlay);
+  }
+  
+  // Update image and show
+  const img = overlay.querySelector('img');
+  img.src = canvasEngine.getImageDataURL();
+  overlay.classList.remove('hidden');
+}
+
+/**
+ * Handle download
+ */
+function handleDownload() {
+  if (!canvasEngine || !canvasEngine.workingImage) {
+    alert('No image to download');
+    return;
+  }
+  
+  const format = exportFormat.value;
+  const quality = parseInt(exportQuality.value) / 100;
+  
+  const dataURL = canvasEngine.getImageDataURL(format, quality);
+  
+  // Create download link
+  const link = document.createElement('a');
+  const activeFile = fileManager.getActiveFile();
+  const fileName = activeFile ? activeFile.name.replace(/\.[^/.]+$/, '') : 'edited-image';
+  const extension = format.split('/')[1];
+  
+  link.download = `${fileName}-edited.${extension}`;
+  link.href = dataURL;
+  link.click();
 }
 
 /**
