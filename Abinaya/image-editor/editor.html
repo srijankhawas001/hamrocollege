@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Professional image editing and PDF handling tool with OCR capabilities">
+  <title>Image Editor - Editor</title>
+  
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/editor.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+</head>
+<body>
+  <!-- Editor Container -->
+  <div class="editor-container">
+    
+    <!-- Header Bar -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">🎨 Image Editor</div>
+      </div>
+      
+      <div class="header-right">
+        <!-- Theme Toggle -->
+        <div class="theme-toggle">
+          <button class="theme-btn active" data-theme="dark">Dark</button>
+          <button class="theme-btn" data-theme="light">Light</button>
+          <button class="theme-btn" data-theme="system">System</button>
+        </div>
+        
+        <!-- User Account Button -->
+        <div style="position: relative;">
+          <button class="user-account-btn" id="user-btn" title="Account (Coming Soon)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+          <div class="user-dropdown hidden" id="user-dropdown">
+            <p>Account features coming soon!</p>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- File Panel (Left Sidebar) -->
+    <aside class="file-panel">
+      <div class="file-panel-header">
+        <h2>Files</h2>
+        <button class="btn btn-primary" id="upload-more-btn" style="width: 100%;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Upload More
+        </button>
+      </div>
+      
+      <div class="file-list" id="file-list">
+        <!-- Files will be populated here -->
+      </div>
+      
+      <input type="file" id="file-input-editor" accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf" multiple hidden>
+    </aside>
+    
+    <!-- Canvas Workspace (Center) -->
+    <main class="canvas-workspace">
+      <div class="canvas-toolbar">
+        <div class="canvas-controls">
+          <button class="btn btn-secondary btn-icon" id="zoom-out-btn" title="Zoom Out">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          
+          <button class="btn btn-secondary btn-icon" id="zoom-in-btn" title="Zoom In">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="11" y1="8" x2="11" y2="14"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          
+          <button class="btn btn-secondary btn-icon" id="fit-screen-btn" title="Fit to Screen">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+          
+          <div style="width: 1px; height: 24px; background: var(--border-primary); margin: 0 var(--spacing-sm);"></div>
+          
+          <button class="btn btn-secondary btn-icon" id="undo-btn" title="Undo" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7v6h6"></path>
+              <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+            </svg>
+          </button>
+          
+          <button class="btn btn-secondary btn-icon" id="redo-btn" title="Redo" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 7v6h-6"></path>
+              <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="canvas-controls">
+          <button class="btn btn-secondary" id="before-after-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <polyline points="23 20 23 14 17 14"></polyline>
+              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+            </svg>
+            Before / After
+          </button>
+        </div>
+      </div>
+      
+      <div class="canvas-container" id="canvas-container">
+        <canvas id="main-canvas" style="cursor: grab;"></canvas>
+        
+        <div class="canvas-empty-state" id="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <h3>No Image Selected</h3>
+          <p>Select a file from the left panel or upload new files</p>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Tool Panel (Right Sidebar) -->
+    <aside class="tool-panel">
+      <div class="tool-panel-header">
+        <h2>Tools</h2>
+      </div>
+      
+      <div class="tool-categories" id="tool-categories">
+        <button class="tool-category-btn active" data-tool="basic">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          <span>Basic</span>
+        </button>
+        
+        <button class="tool-category-btn" data-tool="enhance">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+          </svg>
+          <span>Enhance</span>
+        </button>
+        
+        <button class="tool-category-btn" data-tool="filters">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <span>Filters</span>
+        </button>
+        
+        <button class="tool-category-btn" data-tool="draw">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+            <path d="M2 2l7.586 7.586"></path>
+            <circle cx="11" cy="11" r="2"></circle>
+          </svg>
+          <span>Draw</span>
+        </button>
+        
+        <button class="tool-category-btn" data-tool="ocr">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 7 4 4 20 4 20 7"></polyline>
+            <line x1="9" y1="20" x2="15" y2="20"></line>
+            <line x1="12" y1="4" x2="12" y2="20"></line>
+          </svg>
+          <span>OCR</span>
+        </button>
+        
+        <button class="tool-category-btn" data-tool="watermark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+          </svg>
+          <span>Watermark</span>
+        </button>
+        
+        <button class="tool-category-btn" data-tool="export">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Export</span>
+        </button>
+      </div>
+      
+      <div class="tool-content" id="tool-content">
+        <!-- Tool content will be populated here -->
+      </div>
+    </aside>
+    
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script type="module" src="js/editor.js"></script>
+</body>
+</html>

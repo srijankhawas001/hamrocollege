@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Professional image editing and PDF handling tool with OCR capabilities">
+  <title>Image Editor - Upload</title>
+  
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/upload.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+</head>
+<body>
+  <!-- Upload Page -->
+  <div id="upload-page" class="upload-container">
+    <div class="upload-card fade-in">
+      <div class="upload-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </div>
+      
+      <h1 class="upload-title">Upload From Files</h1>
+      <p class="upload-subtitle">Drag and drop your images or PDFs here</p>
+      
+      <div id="drop-zone" class="drop-zone">
+        <p class="drop-text">Drop files here</p>
+        <p class="drop-subtext">or</p>
+        <button class="btn btn-primary btn-large" id="browse-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          Browse Files
+        </button>
+      </div>
+      
+      <input type="file" id="file-input" accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf" multiple hidden>
+      
+      <div class="supported-formats">
+        <p class="formats-text">Supported formats: JPG, PNG, WebP, PDF</p>
+      </div>
+      
+      <!-- Upload Progress -->
+      <div id="upload-progress" class="upload-progress hidden">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <p class="progress-text">Uploading files...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script type="module" src="js/modules/fileManager.js"></script>
+  <script type="module" src="js/upload.js"></script>
+</body>
+</html>

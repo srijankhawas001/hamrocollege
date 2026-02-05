@@ -1,0 +1,159 @@
+/* ===================================
+   UPLOAD PAGE STYLES
+   =================================== */
+
+.upload-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  padding: var(--spacing-lg);
+}
+
+.upload-card {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  transition: all var(--transition-base);
+}
+
+.upload-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+}
+
+.upload-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: var(--radius-full);
+  margin-bottom: var(--spacing-lg);
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+.upload-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.upload-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ===================================
+   DROP ZONE
+   =================================== */
+
+.drop-zone {
+  border: 2px dashed var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-lg);
+  background: var(--bg-tertiary);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.1);
+  transform: scale(1.02);
+}
+
+.drop-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.drop-subtext {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* ===================================
+   SUPPORTED FORMATS
+   =================================== */
+
+.supported-formats {
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-primary);
+}
+
+.formats-text {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+/* ===================================
+   UPLOAD PROGRESS
+   =================================== */
+
+.upload-progress {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-primary);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--spacing-sm);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+  width: 0%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ===================================
+   RESPONSIVE DESIGN
+   =================================== */
+
+@media (max-width: 640px) {
+  .upload-card {
+    padding: var(--spacing-xl);
+  }
+  
+  .upload-title {
+    font-size: 1.5rem;
+  }
+  
+  .upload-icon {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .drop-zone {
+    padding: var(--spacing-xl);
+  }
+}
