@@ -1,15 +1,16 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR & Barcode Studio</title>
+    <title>QR & Barcode Studio Pro</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 </head>
 <body>
     <div class="cosmic-bg"></div>
@@ -24,7 +25,7 @@
                     <rect x="2" y="23" width="15" height="15" fill="currentColor"/>
                     <circle cx="30" cy="30" r="8" fill="currentColor"/>
                 </svg>
-                <span>QR Studio</span>
+                <span>QR Studio Pro</span>
             </div>
             <nav class="nav">
                 <button class="nav-btn active" data-section="generate">Generate</button>
@@ -40,7 +41,7 @@
             <div class="container">
                 <div class="section-header">
                     <h1 class="title">Create Your Code</h1>
-                    <p class="subtitle">Transform any text, link, or data into beautiful QR codes and barcodes</p>
+                    <p class="subtitle">Transform any text, link, or data into beautiful custom QR codes and barcodes</p>
                 </div>
 
                 <div class="controls-grid">
@@ -90,41 +91,165 @@
                             </div>
                         </div>
 
-                        <div class="card">
-                            <h3 class="card-title">Theme Selection</h3>
-                            <div class="theme-grid">
-                                <button class="theme-card active" data-theme="cosmic">
-                                    <div class="theme-preview cosmic-theme"></div>
-                                    <span>Cosmic</span>
-                                </button>
-                                <button class="theme-card" data-theme="ocean">
-                                    <div class="theme-preview ocean-theme"></div>
-                                    <span>Ocean</span>
-                                </button>
-                                <button class="theme-card" data-theme="sunset">
-                                    <div class="theme-preview sunset-theme"></div>
-                                    <span>Sunset</span>
-                                </button>
-                                <button class="theme-card" data-theme="forest">
-                                    <div class="theme-preview forest-theme"></div>
-                                    <span>Forest</span>
-                                </button>
-                                <button class="theme-card" data-theme="neon">
-                                    <div class="theme-preview neon-theme"></div>
-                                    <span>Neon</span>
-                                </button>
-                                <button class="theme-card" data-theme="royal">
-                                    <div class="theme-preview royal-theme"></div>
-                                    <span>Royal</span>
-                                </button>
-                                <button class="theme-card" data-theme="cherry">
-                                    <div class="theme-preview cherry-theme"></div>
-                                    <span>Cherry</span>
-                                </button>
-                                <button class="theme-card" data-theme="mint">
-                                    <div class="theme-preview mint-theme"></div>
-                                    <span>Mint</span>
-                                </button>
+                        <!-- QR Code Design Options -->
+                        <div class="card qr-design-options">
+                            <h3 class="card-title">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M12 1v6m0 6v6m0-15l-3 3m3-3l3 3m-3 9l-3 3m3-3l3 3M1 12h6m6 0h6M4 12L7 9m-3 3l3 3m10-6l3 3m-3-3l3-3"/>
+                                </svg>
+                                Custom Design
+                            </h3>
+                            
+                            <!-- Logo Upload -->
+                            <div class="logo-section">
+                                <label class="label">Logo / Image</label>
+                                <div class="logo-upload-area" id="logoUploadArea">
+                                    <input type="file" id="logoInput" accept="image/*" hidden>
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21 15 16 10 5 21"/>
+                                    </svg>
+                                    <p>Upload Logo</p>
+                                    <small>PNG, JPG, SVG (Max 2MB)</small>
+                                </div>
+                                <div id="logoPreview" class="logo-preview" style="display: none;">
+                                    <img id="logoImage" alt="Logo">
+                                    <button id="removeLogo" class="remove-logo-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="input-group" id="logoSizeControl" style="margin-top: 1rem; display: none;">
+                                    <label class="label">Logo Size (%)</label>
+                                    <input type="range" id="logoSize" min="10" max="30" value="20" class="slider">
+                                    <span id="logoSizeValue" class="value">20%</span>
+                                </div>
+                            </div>
+
+                            <!-- Color Customization -->
+                            <div class="color-section">
+                                <label class="label">Foreground Color</label>
+                                <div class="color-picker-group">
+                                    <input type="color" id="fgColor" value="#000000" class="color-input">
+                                    <input type="text" id="fgColorHex" value="#000000" class="hex-input" maxlength="7">
+                                    <button class="color-preset-btn" data-color="#000000" style="background: #000000;"></button>
+                                    <button class="color-preset-btn" data-color="#7c3aed" style="background: #7c3aed;"></button>
+                                    <button class="color-preset-btn" data-color="#ec4899" style="background: #ec4899;"></button>
+                                    <button class="color-preset-btn" data-color="#0ea5e9" style="background: #0ea5e9;"></button>
+                                    <button class="color-preset-btn" data-color="#10b981" style="background: #10b981;"></button>
+                                    <button class="color-preset-btn" data-color="#f97316" style="background: #f97316;"></button>
+                                </div>
+                            </div>
+
+                            <div class="color-section">
+                                <label class="label">Background Color</label>
+                                <div class="color-picker-group">
+                                    <input type="color" id="bgColor" value="#ffffff" class="color-input">
+                                    <input type="text" id="bgColorHex" value="#ffffff" class="hex-input" maxlength="7">
+                                    <button class="color-preset-btn" data-color="#ffffff" style="background: #ffffff; border: 1px solid #ddd;"></button>
+                                    <button class="color-preset-btn" data-color="#f8fafc" style="background: #f8fafc;"></button>
+                                    <button class="color-preset-btn" data-color="#fef3c7" style="background: #fef3c7;"></button>
+                                    <button class="color-preset-btn" data-color="#dbeafe" style="background: #dbeafe;"></button>
+                                    <button class="color-preset-btn" data-color="#fce7f3" style="background: #fce7f3;"></button>
+                                    <button class="color-preset-btn" data-color="#d1fae5" style="background: #d1fae5;"></button>
+                                </div>
+                            </div>
+
+                            <!-- Gradient Option -->
+                            <div class="input-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="useGradient">
+                                    <span>Use Color Gradient</span>
+                                </label>
+                            </div>
+
+                            <div id="gradientOptions" style="display: none;">
+                                <div class="color-section">
+                                    <label class="label">Gradient End Color</label>
+                                    <div class="color-picker-group">
+                                        <input type="color" id="gradientColor" value="#7c3aed" class="color-input">
+                                        <input type="text" id="gradientColorHex" value="#7c3aed" class="hex-input" maxlength="7">
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">Gradient Type</label>
+                                    <select id="gradientType" class="select">
+                                        <option value="linear">Linear</option>
+                                        <option value="radial">Radial</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Pattern/Dot Style -->
+                            <div class="input-group">
+                                <label class="label">Dot Style</label>
+                                <div class="pattern-grid">
+                                    <button class="pattern-btn active" data-pattern="square">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="4" y="4" width="4" height="4"/>
+                                            <rect x="10" y="4" width="4" height="4"/>
+                                            <rect x="16" y="4" width="4" height="4"/>
+                                            <rect x="4" y="10" width="4" height="4"/>
+                                            <rect x="10" y="10" width="4" height="4"/>
+                                            <rect x="16" y="10" width="4" height="4"/>
+                                        </svg>
+                                        <span>Square</span>
+                                    </button>
+                                    <button class="pattern-btn" data-pattern="dots">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <circle cx="6" cy="6" r="2"/>
+                                            <circle cx="12" cy="6" r="2"/>
+                                            <circle cx="18" cy="6" r="2"/>
+                                            <circle cx="6" cy="12" r="2"/>
+                                            <circle cx="12" cy="12" r="2"/>
+                                            <circle cx="18" cy="12" r="2"/>
+                                        </svg>
+                                        <span>Dots</span>
+                                    </button>
+                                    <button class="pattern-btn" data-pattern="rounded">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="4" y="4" width="4" height="4" rx="1"/>
+                                            <rect x="10" y="4" width="4" height="4" rx="1"/>
+                                            <rect x="16" y="4" width="4" height="4" rx="1"/>
+                                            <rect x="4" y="10" width="4" height="4" rx="1"/>
+                                            <rect x="10" y="10" width="4" height="4" rx="1"/>
+                                            <rect x="16" y="10" width="4" height="4" rx="1"/>
+                                        </svg>
+                                        <span>Rounded</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Corner Eye Style -->
+                            <div class="input-group">
+                                <label class="label">Corner Eye Style</label>
+                                <div class="pattern-grid">
+                                    <button class="eye-btn active" data-eye="square">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="8" height="8"/>
+                                            <rect x="5" y="5" width="4" height="4"/>
+                                        </svg>
+                                        <span>Square</span>
+                                    </button>
+                                    <button class="eye-btn" data-eye="rounded">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="8" height="8" rx="2"/>
+                                            <rect x="5" y="5" width="4" height="4" rx="1"/>
+                                        </svg>
+                                        <span>Rounded</span>
+                                    </button>
+                                    <button class="eye-btn" data-eye="circle">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="7" cy="7" r="4"/>
+                                            <circle cx="7" cy="7" r="2"/>
+                                        </svg>
+                                        <span>Circle</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -135,15 +260,15 @@
                                     <label class="label">Error Correction</label>
                                     <select id="errorCorrection" class="select">
                                         <option value="L">Low (7%)</option>
-                                        <option value="M" selected>Medium (15%)</option>
-                                        <option value="Q">Quartile (25%)</option>
+                                        <option value="M">Medium (15%)</option>
+                                        <option value="Q" selected>Quartile (25%)</option>
                                         <option value="H">High (30%)</option>
                                     </select>
                                 </div>
                                 <div class="input-group">
                                     <label class="label">Size</label>
-                                    <input type="range" id="qrSize" min="200" max="500" value="300" class="slider">
-                                    <span id="qrSizeValue" class="value">300px</span>
+                                    <input type="range" id="qrSize" min="256" max="512" value="400" class="slider">
+                                    <span id="qrSizeValue" class="value">400px</span>
                                 </div>
                             </div>
                         </div>
@@ -177,11 +302,6 @@
                         <button id="generateBtn" class="btn-primary">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
-                                <polyline points="7.5 19.79 7.5 14.6 3 12"/>
-                                <polyline points="21 12 16.5 14.6 16.5 19.79"/>
-                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                                <line x1="12" y1="22.08" x2="12" y2="12"/>
                             </svg>
                             Generate Code
                         </button>
@@ -190,7 +310,7 @@
                     <div class="preview-panel">
                         <div class="card preview-card">
                             <div class="preview-header">
-                                <h3 class="card-title">Preview</h3>
+                                <h3 class="card-title">Live Preview</h3>
                                 <div class="preview-actions">
                                     <button id="downloadBtn" class="icon-btn" title="Download">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -217,6 +337,7 @@
                                         <rect x="14" y="14" width="7" height="7"/>
                                     </svg>
                                     <p>Your code will appear here</p>
+                                    <small style="color: var(--text-secondary); margin-top: 0.5rem;">Customize colors, add logo, choose patterns</small>
                                 </div>
                             </div>
                         </div>
@@ -305,7 +426,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>QR & Barcode Studio • Made with ❤️ by Srijan</p>
+            <p>QR & Barcode Studio Pro • Made with ❤️ by Srijan</p>
         </div>
     </footer>
 
