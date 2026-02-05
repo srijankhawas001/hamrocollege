@@ -46,6 +46,15 @@ const downloadBtn = document.getElementById('download-btn');
 // Initialize
 window.addEventListener('DOMContentLoaded', init);
 
+// PDF State
+let pdfDoc = null;
+let currentPdfPage = 1;
+const pdfNavLeft = document.getElementById('pdf-nav-left');
+const pdfNavRight = document.getElementById('pdf-nav-right');
+const pdfSliderLeft = document.getElementById('pdf-page-slider-left');
+const pdfSliderRight = document.getElementById('pdf-page-slider-right');
+
+
 async function init() {
   // Initialize canvas engine
   canvasEngine = new CanvasEngine(canvas);
@@ -167,6 +176,20 @@ function setupEventListeners() {
       canvasEngine.render();
     }
   });
+
+  // PDF Page Sliders
+  const handlePdfPageChange = async (e) => {
+    const pageNum = parseInt(e.target.value);
+    if (pdfDoc && pageNum !== currentPdfPage) {
+      currentPdfPage = pageNum;
+      pdfSliderLeft.value = pageNum;
+      pdfSliderRight.value = pageNum;
+      await renderPdfPage(pageNum);
+    }
+  };
+
+  pdfSliderLeft.addEventListener('input', handlePdfPageChange);
+  pdfSliderRight.addEventListener('input', handlePdfPageChange);
 }
 
 /**
@@ -196,6 +219,37 @@ function setupThemeToggle() {
 /**
  * Render file list
  */
+/**
+ * Setup file list scroll behavior
+ */
+function setupFileListScroll() {
+  const exportSection = document.getElementById('export-section');
+  if (!fileList || !exportSection) return;
+
+  fileList.addEventListener('scroll', () => {
+    const fileItems = fileList.querySelectorAll('.file-item');
+    const exportRect = exportSection.getBoundingClientRect();
+    const fileListRect = fileList.getBoundingClientRect();
+    
+    // Calculate the scroll threshold (export section top position relative to file-list)
+    const exportTopInList = exportRect.top - fileListRect.top + fileList.scrollTop;
+    
+    fileItems.forEach((item) => {
+      const itemRect = item.getBoundingClientRect();
+      const itemTopInList = itemRect.top - fileListRect.top + fileList.scrollTop;
+      const itemBottomInList = itemTopInList + item.offsetHeight;
+      
+      // If item is below the threshold, make it faded
+      if (itemTopInList >= exportTopInList - item.offsetHeight) {
+        const fade = Math.min(1, Math.max(0, (itemBottomInList - exportTopInList) / item.offsetHeight));
+        item.style.opacity = 0.3 + (fade * 0.7); // Range from 0.3 to 1.0
+      } else {
+        item.style.opacity = '1';
+      }
+    });
+  });
+}
+
 function renderFileList() {
   const files = fileManager.getAllFiles();
   const activeFile = fileManager.getActiveFile();
@@ -263,6 +317,9 @@ function renderFileList() {
     
     fileList.appendChild(fileItem);
   });
+  
+  // Setup scroll behavior after rendering
+  setupFileListScroll();
 }
 
 /**
@@ -276,14 +333,77 @@ async function loadFileIntoCanvas(file) {
     historyManager.clear();
     updateHistoryButtons();
     
-    // Load image
-    await canvasEngine.loadImage(file.file);
+    if (file.type === 'application/pdf') {
+      await loadPdf(file.file);
+      pdfNavLeft.style.display = 'flex';
+      pdfNavRight.style.display = 'flex';
+    } else {
+      pdfNavLeft.style.display = 'none';
+      pdfNavRight.style.display = 'none';
+      pdfDoc = null;
+      // Load image
+      await canvasEngine.loadImage(file.file);
+    }
     
   } catch (error) {
     console.error('Error loading file:', error);
     alert(`Error loading file: ${error.message}`);
   }
 }
+
+/**
+ * Load PDF file
+ */
+async function loadPdf(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  
+  currentPdfPage = 1;
+  const numPages = pdfDoc.numPages;
+  
+  pdfSliderLeft.max = numPages;
+  pdfSliderLeft.min = 1;
+  pdfSliderLeft.value = 1;
+  
+  pdfSliderRight.max = numPages;
+  pdfSliderRight.min = 1;
+  pdfSliderRight.value = 1;
+  
+  await renderPdfPage(1);
+}
+
+/**
+ * Render specific PDF page to canvas
+ */
+async function renderPdfPage(pageNum) {
+  const page = await pdfDoc.getPage(pageNum);
+  const viewport = page.getViewport({ scale: 2.0 }); // High quality
+  
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = viewport.width;
+  tempCanvas.height = viewport.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  await page.render({
+    canvasContext: tempCtx,
+    viewport: viewport
+  }).promise;
+  
+  // Convert rendered page to image for CanvasEngine
+  const dataURL = tempCanvas.toDataURL('image/png');
+  const img = new Image();
+  await new Promise(resolve => {
+    img.onload = resolve;
+    img.src = dataURL;
+  });
+  
+  // Set as original image in canvas engine
+  canvasEngine.originalImage = img;
+  canvasEngine.workingImage = img;
+  canvasEngine.editOperations = [];
+  canvasEngine.render();
+}
+
 
 /**
  * Show empty state

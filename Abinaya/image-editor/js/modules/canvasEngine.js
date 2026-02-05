@@ -213,6 +213,15 @@ class CanvasEngine {
       case 'flip':
         this.applyFlip(canvas, ctx, operation.direction);
         break;
+      case 'sharpness':
+        this.applySharpness(ctx, canvas.width, canvas.height, operation.value);
+        break;
+      case 'translate':
+        this.applyTranslate(canvas, ctx, operation.x, operation.y);
+        break;
+      case 'watermark':
+        await this.applyWatermark(ctx, canvas.width, canvas.height, operation.params);
+        break;
       default:
         console.warn('Unknown operation:', operation.type);
     }
@@ -267,6 +276,109 @@ class CanvasEngine {
     
     ctx.putImageData(imageData, 0, 0);
   }
+
+  /**
+   * Apply sharpness adjustment
+   */
+  applySharpness(ctx, width, height, value) {
+    if (value === 0) return;
+    
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const amount = value / 100;
+    
+    // Simple 3x3 sharpen matrix
+    const kernel = [
+      0, -amount, 0,
+      -amount, 1 + 4 * amount, -amount,
+      0, -amount, 0
+    ];
+    
+    this.applyConvolution(ctx, width, height, kernel);
+  }
+
+  /**
+   * Apply convolution matrix (for sharpening, blur, etc.)
+   */
+  applyConvolution(ctx, width, height, kernel) {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const pixels = imageData.data;
+    const side = Math.round(Math.sqrt(kernel.length));
+    const halfSide = Math.floor(side / 2);
+    const output = ctx.createImageData(width, height);
+    const dst = output.data;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const dstOff = (y * width + x) * 4;
+        let r = 0, g = 0, b = 0;
+        
+        for (let cy = 0; cy < side; cy++) {
+          for (let cx = 0; cx < side; cx++) {
+            const scy = y + cy - halfSide;
+            const scx = x + cx - halfSide;
+            
+            if (scy >= 0 && scy < height && scx >= 0 && scx < width) {
+              const srcOff = (scy * width + scx) * 4;
+              const wt = kernel[cy * side + cx];
+              r += pixels[srcOff] * wt;
+              g += pixels[srcOff + 1] * wt;
+              b += pixels[srcOff + 2] * wt;
+            }
+          }
+        }
+        
+        dst[dstOff] = r;
+        dst[dstOff + 1] = g;
+        dst[dstOff + 2] = b;
+        dst[dstOff + 3] = pixels[dstOff + 3];
+      }
+    }
+    
+    ctx.putImageData(output, 0, 0);
+  }
+
+  /**
+   * Apply translation (movement)
+   */
+  applyTranslate(canvas, ctx, x, y) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(canvas, 0, 0);
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(tempCanvas, x, y);
+  }
+
+  /**
+   * Apply watermark
+   */
+  async applyWatermark(ctx, width, height, params) {
+    const { type, content, x, y, size, opacity, color } = params;
+    
+    ctx.save();
+    ctx.globalAlpha = opacity / 100;
+    
+    if (type === 'text') {
+      ctx.font = `${size}px ${params.font || 'Arial'}`;
+      ctx.fillStyle = color || 'white';
+      ctx.fillText(content, x, y);
+    } else if (type === 'image') {
+      const img = new Image();
+      img.src = content;
+      await new Promise(resolve => {
+        img.onload = () => {
+          ctx.drawImage(img, x, y, size, (size * img.height) / img.width);
+          resolve();
+        };
+      });
+    }
+    
+    ctx.restore();
+  }
+
 
   /**
    * Apply crop

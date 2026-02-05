@@ -13,7 +13,18 @@ class ToolManager {
     this.toolContent = document.getElementById('tool-content');
     
     this.setupEventListeners();
+    this.setupScrollListener();
     this.renderTool('basic');
+  }
+
+  setupScrollListener() {
+    this.toolContent.addEventListener('scroll', () => {
+      if (this.toolContent.scrollTop > 0) {
+        this.toolCategories.classList.add('expanded');
+      } else {
+        this.toolCategories.classList.remove('expanded');
+      }
+    });
   }
 
   setupEventListeners() {
@@ -63,18 +74,12 @@ class ToolManager {
   renderBasicTools() {
     this.toolContent.innerHTML = `
       <div class="tool-section">
-        <h3>Crop</h3>
-        <div class="tool-control">
-          <label>Aspect Ratio</label>
-          <select class="input" id="crop-aspect">
-            <option value="free">Free</option>
-            <option value="1:1">1:1 (Square)</option>
-            <option value="4:3">4:3</option>
-            <option value="16:9">16:9</option>
-            <option value="3:2">3:2</option>
-          </select>
+        <h3>Basic Edits</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+          <button class="btn btn-secondary" id="open-crop-tool">Crop</button>
+          <button class="btn btn-secondary" id="open-move-tool">Move</button>
         </div>
-        <button class="btn btn-secondary" style="width: 100%;" disabled>Apply Crop (Coming Soon)</button>
+        <div id="basic-tool-controls"></div>
       </div>
 
       <div class="tool-section">
@@ -99,34 +104,27 @@ class ToolManager {
       <div class="tool-section">
         <h3>Rotate & Flip</h3>
         <div class="tool-control">
-          <label>Rotation</label>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-            <button class="btn btn-secondary" id="rotate-90">↻ 90°</button>
-            <button class="btn btn-secondary" id="rotate-180">↻ 180°</button>
-            <button class="btn btn-secondary" id="rotate-270">↻ 270°</button>
-            <button class="btn btn-secondary" id="rotate-custom">Custom</button>
+          <label>Quick Rotate</label>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+            <button class="btn btn-secondary" id="rotate-90">90°</button>
+            <button class="btn btn-secondary" id="rotate-180">180°</button>
+            <button class="btn btn-secondary" id="rotate-270">270°</button>
+          </div>
+        </div>
+        <div class="tool-control">
+          <label>Custom Rotate</label>
+          <div class="tool-control-row">
+            <input type="range" class="slider" id="rotate-slider" min="-180" max="180" value="0">
+            <span class="tool-value" id="rotate-value">0°</span>
           </div>
         </div>
         <div class="tool-control">
           <label>Flip</label>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-            <button class="btn btn-secondary" id="flip-horizontal">↔ Horizontal</button>
-            <button class="btn btn-secondary" id="flip-vertical">↕ Vertical</button>
+            <button class="btn btn-secondary" id="flip-horizontal">↔ Horiz</button>
+            <button class="btn btn-secondary" id="flip-vertical">↕ Vert</button>
           </div>
         </div>
-      </div>
-
-      <div class="tool-section">
-        <h3>Format Converter</h3>
-        <div class="tool-control">
-          <label>Output Format</label>
-          <select class="input" id="convert-format">
-            <option value="image/jpeg">JPEG</option>
-            <option value="image/png">PNG</option>
-            <option value="image/webp">WebP</option>
-          </select>
-        </div>
-        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: -0.5rem;">Format conversion happens during export</p>
       </div>
     `;
 
@@ -247,7 +245,7 @@ class ToolManager {
             <span class="tool-value" id="sharpness-value">0</span>
           </div>
         </div>
-        <p style="font-size: 0.75rem; color: var(--text-tertiary);">Sharpness feature coming soon</p>
+        <p style="font-size: 0.75rem; color: var(--text-tertiary);">Double-click slider to reset to default value.</p>
       </div>
     `;
 
@@ -255,55 +253,38 @@ class ToolManager {
   }
 
   setupEnhanceToolListeners() {
-    const brightnessSlider = document.getElementById('brightness-slider');
-    const brightnessValue = document.getElementById('brightness-value');
-    const contrastSlider = document.getElementById('contrast-slider');
-    const contrastValue = document.getElementById('contrast-value');
-    const saturationSlider = document.getElementById('saturation-slider');
-    const saturationValue = document.getElementById('saturation-value');
+    this.setupSlider('brightness-slider', 'brightness-value', 'brightness', 0);
+    this.setupSlider('contrast-slider', 'contrast-value', 'contrast', 0);
+    this.setupSlider('saturation-slider', 'saturation-value', 'saturation', 1, 0.1);
+    this.setupSlider('sharpness-slider', 'sharpness-value', 'sharpness', 0);
+    
     const resetBtn = document.getElementById('reset-adjustments');
-
-    brightnessSlider.addEventListener('input', () => {
-      brightnessValue.textContent = brightnessSlider.value;
-    });
-
-    brightnessSlider.addEventListener('change', () => {
-      window.applyEdit({
-        type: 'brightness',
-        value: parseInt(brightnessSlider.value)
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        // Reset all sliders and apply edits
+        const brightnessSlider = document.getElementById('brightness-slider');
+        const contrastSlider = document.getElementById('contrast-slider');
+        const saturationSlider = document.getElementById('saturation-slider');
+        const sharpnessSlider = document.getElementById('sharpness-slider');
+        
+        if (brightnessSlider) {
+          brightnessSlider.value = 0;
+          brightnessSlider.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (contrastSlider) {
+          contrastSlider.value = 0;
+          contrastSlider.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (saturationSlider) {
+          saturationSlider.value = 1;
+          saturationSlider.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (sharpnessSlider) {
+          sharpnessSlider.value = 0;
+          sharpnessSlider.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       });
-    });
-
-    contrastSlider.addEventListener('input', () => {
-      contrastValue.textContent = contrastSlider.value;
-    });
-
-    contrastSlider.addEventListener('change', () => {
-      window.applyEdit({
-        type: 'contrast',
-        value: parseInt(contrastSlider.value)
-      });
-    });
-
-    saturationSlider.addEventListener('input', () => {
-      saturationValue.textContent = parseFloat(saturationSlider.value).toFixed(1);
-    });
-
-    saturationSlider.addEventListener('change', () => {
-      window.applyEdit({
-        type: 'saturation',
-        value: parseFloat(saturationSlider.value)
-      });
-    });
-
-    resetBtn.addEventListener('click', () => {
-      brightnessSlider.value = 0;
-      brightnessValue.textContent = '0';
-      contrastSlider.value = 0;
-      contrastValue.textContent = '0';
-      saturationSlider.value = 1;
-      saturationValue.textContent = '1.0';
-    });
+    }
   }
 
   renderFilterTools() {
@@ -526,51 +507,239 @@ class ToolManager {
   renderWatermarkTools() {
     this.toolContent.innerHTML = `
       <div class="tool-section">
-        <h3>Watermark</h3>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
-          Add text or image watermarks
-        </p>
+        <h3>Full Watermark Tool</h3>
         
         <div class="tool-control">
           <label>Watermark Type</label>
-          <select class="input" disabled>
-            <option>Text</option>
-            <option>Image</option>
-            <option>Logo</option>
-          </select>
-        </div>
-
-        <div class="tool-control">
-          <label>Text</label>
-          <input type="text" class="input" placeholder="Enter watermark text" disabled>
-        </div>
-
-        <div class="tool-control">
-          <label>Position</label>
-          <select class="input" disabled>
-            <option>Center</option>
-            <option>Top Left</option>
-            <option>Top Right</option>
-            <option>Bottom Left</option>
-            <option>Bottom Right</option>
-          </select>
-        </div>
-
-        <div class="tool-control">
-          <label>Opacity</label>
-          <div class="tool-control-row">
-            <input type="range" class="slider" min="0" max="100" value="50" disabled>
-            <span class="tool-value">50%</span>
+          <div class="flex gap-sm">
+            <button class="btn btn-secondary flex-1" id="wm-type-text">Text</button>
+            <button class="btn btn-secondary flex-1" id="wm-type-image">Image</button>
           </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%;" disabled>Add Watermark</button>
-        
-        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 1rem;">
-          Watermark engine coming soon
-        </p>
+        <div id="wm-controls">
+          <div id="wm-text-input-group">
+            <div class="tool-control">
+              <label>Text Content</label>
+              <input type="text" class="input" id="wm-text" placeholder="Enter text...">
+            </div>
+          </div>
+          
+          <div id="wm-image-input-group" style="display: none;">
+            <div class="tool-control">
+              <label>Select Image</label>
+              <input type="file" class="input" id="wm-image-file" accept="image/*">
+            </div>
+          </div>
+
+          <div class="tool-control">
+            <label>Position X</label>
+            <div class="tool-control-row">
+              <input type="range" class="slider" id="wm-x" min="0" max="1000" value="50">
+              <span class="tool-value" id="wm-x-val">50</span>
+            </div>
+          </div>
+          <div class="tool-control">
+            <label>Position Y</label>
+            <div class="tool-control-row">
+              <input type="range" class="slider" id="wm-y" min="0" max="1000" value="50">
+              <span class="tool-value" id="wm-y-val">50</span>
+            </div>
+          </div>
+          <div class="tool-control">
+            <label>Size</label>
+            <div class="tool-control-row">
+              <input type="range" class="slider" id="wm-size" min="10" max="200" value="40">
+              <span class="tool-value" id="wm-size-val">40</span>
+            </div>
+          </div>
+          <div class="tool-control">
+            <label>Opacity</label>
+            <div class="tool-control-row">
+              <input type="range" class="slider" id="wm-opacity" min="0" max="100" value="100">
+              <span class="tool-value" id="wm-opacity-val">100</span>
+            </div>
+          </div>
+          <div class="tool-control">
+            <label>Color</label>
+            <input type="color" class="input" id="wm-color" value="#ffffff">
+          </div>
+          <button class="btn btn-primary w-full" id="apply-watermark">Apply Watermark</button>
+        </div>
       </div>
     `;
+
+    this.setupWatermarkListeners();
+  }
+
+  setupSlider(sliderId, valueId, operationType, defaultValue = 0, step = 1) {
+    const slider = document.getElementById(sliderId);
+    const valueText = document.getElementById(valueId);
+    if (!slider || !valueText) return;
+
+    const updateValue = (val) => {
+      const numVal = parseFloat(val);
+      valueText.textContent = step < 1 ? numVal.toFixed(1) : Math.round(numVal);
+      if (numVal !== defaultValue) {
+        slider.classList.add('active');
+      } else {
+        slider.classList.remove('active');
+      }
+    };
+
+    slider.addEventListener('input', () => updateValue(slider.value));
+    
+    slider.addEventListener('change', () => {
+      window.applyEdit({
+        type: operationType,
+        value: parseFloat(slider.value)
+      });
+    });
+
+    slider.addEventListener('dblclick', () => {
+      slider.value = defaultValue;
+      updateValue(defaultValue);
+      window.applyEdit({
+        type: operationType,
+        value: defaultValue
+      });
+    });
+  }
+
+  setupBasicToolListeners() {
+    // Resize, Rotate, Flip as before...
+    this.setupSlider('rotate-slider', 'rotate-value', 'rotate', 0);
+    
+    document.getElementById('rotate-90').addEventListener('click', () => window.applyEdit({ type: 'rotate', angle: 90 }));
+    document.getElementById('rotate-180').addEventListener('click', () => window.applyEdit({ type: 'rotate', angle: 180 }));
+    document.getElementById('rotate-270').addEventListener('click', () => window.applyEdit({ type: 'rotate', angle: 270 }));
+    
+    document.getElementById('apply-resize').addEventListener('click', () => {
+      const w = parseInt(document.getElementById('resize-width').value);
+      const h = parseInt(document.getElementById('resize-height').value);
+      window.applyEdit({ type: 'resize', params: { width: w, height: h } });
+    });
+
+    document.getElementById('flip-horizontal').addEventListener('click', () => window.applyEdit({ type: 'flip', direction: 'horizontal' }));
+    document.getElementById('flip-vertical').addEventListener('click', () => window.applyEdit({ type: 'flip', direction: 'vertical' }));
+    
+    // Crop/Move triggers
+    document.getElementById('open-crop-tool').addEventListener('click', () => {
+      const controls = document.getElementById('basic-tool-controls');
+      controls.innerHTML = `
+        <div class="tool-control">
+          <label>Crop X</label><input type="number" class="input" id="crop-x" value="0">
+        </div>
+        <div class="tool-control">
+          <label>Crop Y</label><input type="number" class="input" id="crop-y" value="0">
+        </div>
+        <div class="tool-control">
+          <label>Crop Width</label><input type="number" class="input" id="crop-w" value="300">
+        </div>
+        <div class="tool-control">
+          <label>Crop Height</label><input type="number" class="input" id="crop-h" value="300">
+        </div>
+        <button class="btn btn-primary w-full" id="apply-crop">Apply Crop</button>
+      `;
+      document.getElementById('apply-crop').addEventListener('click', () => {
+        window.applyEdit({
+          type: 'crop',
+          params: {
+            x: parseInt(document.getElementById('crop-x').value),
+            y: parseInt(document.getElementById('crop-y').value),
+            width: parseInt(document.getElementById('crop-w').value),
+            height: parseInt(document.getElementById('crop-h').value)
+          }
+        });
+      });
+    });
+
+    document.getElementById('open-move-tool').addEventListener('click', () => {
+      const controls = document.getElementById('basic-tool-controls');
+      controls.innerHTML = `
+        <div class="tool-control">
+          <label>Move X</label><div class="tool-control-row">
+            <input type="range" class="slider" id="move-x" min="-500" max="500" value="0">
+            <span class="tool-value" id="move-x-val">0</span>
+          </div>
+        </div>
+        <div class="tool-control">
+          <label>Move Y</label><div class="tool-control-row">
+            <input type="range" class="slider" id="move-y" min="-500" max="500" value="0">
+            <span class="tool-value" id="move-y-val">0</span>
+          </div>
+        </div>
+      `;
+      this.setupSlider('move-x', 'move-x-val', 'translate', 0);
+      this.setupSlider('move-y', 'move-y-val', 'translate', 0);
+    });
+  }
+
+  setupEnhanceToolListeners() {
+    this.setupSlider('brightness-slider', 'brightness-value', 'brightness', 0);
+    this.setupSlider('contrast-slider', 'contrast-value', 'contrast', 0);
+    this.setupSlider('saturation-slider', 'saturation-value', 'saturation', 1, 0.1);
+    this.setupSlider('sharpness-slider', 'sharpness-value', 'sharpness', 0);
+  }
+
+  setupWatermarkListeners() {
+    let wmType = 'text';
+    let wmImageData = null;
+    
+    const textGroup = document.getElementById('wm-text-input-group');
+    const imageGroup = document.getElementById('wm-image-input-group');
+    const imageInput = document.getElementById('wm-image-file');
+
+    document.getElementById('wm-type-text').addEventListener('click', () => {
+      wmType = 'text';
+      textGroup.style.display = 'block';
+      imageGroup.style.display = 'none';
+    });
+    
+    document.getElementById('wm-type-image').addEventListener('click', () => {
+      wmType = 'image';
+      textGroup.style.display = 'none';
+      imageGroup.style.display = 'block';
+    });
+
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          wmImageData = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    this.setupSlider('wm-x', 'wm-x-val', 'watermark_preview', 50);
+    this.setupSlider('wm-y', 'wm-y-val', 'watermark_preview', 50);
+    this.setupSlider('wm-size', 'wm-size-val', 'watermark_preview', 40);
+    this.setupSlider('wm-opacity', 'wm-opacity-val', 'watermark_preview', 100);
+
+    document.getElementById('apply-watermark').addEventListener('click', () => {
+      const content = wmType === 'text' ? document.getElementById('wm-text').value : wmImageData;
+      if (!content) {
+        alert(wmType === 'text' ? 'Please enter text' : 'Please select an image');
+        return;
+      }
+      
+      // Calculate actual positions based on image size if possible
+      // For now, we use simple pixel values from sliders
+      window.applyEdit({
+        type: 'watermark',
+        params: {
+          type: wmType,
+          content: content,
+          x: parseInt(document.getElementById('wm-x').value),
+          y: parseInt(document.getElementById('wm-y').value),
+          size: parseInt(document.getElementById('wm-size').value),
+          opacity: parseInt(document.getElementById('wm-opacity').value),
+          color: document.getElementById('wm-color').value
+        }
+      });
+    });
   }
 
 }

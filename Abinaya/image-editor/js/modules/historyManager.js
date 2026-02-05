@@ -57,7 +57,7 @@ class HistoryManager {
    * Check if undo is available
    */
   canUndo() {
-    return this.currentIndex > 0;
+    return this.currentIndex >= 0;
   }
 
   /**

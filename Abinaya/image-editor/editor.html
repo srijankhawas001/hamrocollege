@@ -12,6 +12,12 @@
   
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
 </head>
 <body>
   <!-- Editor Container -->
@@ -62,39 +68,41 @@
         </button>
       </div>
       
-      <div class="file-list" id="file-list">
-        <!-- Files will be populated here -->
-      </div>
-      
-      <!-- Export Section -->
-      <div class="export-section" id="export-section">
-        <h3 style="font-size: 0.875rem; margin-bottom: 0.75rem; color: var(--text-secondary);">Export</h3>
-        
-        <div class="tool-control" style="margin-bottom: 0.75rem;">
-          <label style="font-size: 0.75rem;">Format</label>
-          <select class="input" id="export-format" style="font-size: 0.875rem;">
-            <option value="image/png">PNG</option>
-            <option value="image/jpeg">JPEG</option>
-            <option value="image/webp">WebP</option>
-          </select>
+      <div class="file-list-container">
+        <div class="file-list" id="file-list">
+          <!-- Files will be populated here -->
         </div>
         
-        <div class="tool-control" id="quality-control" style="margin-bottom: 0.75rem; display: none;">
-          <label style="font-size: 0.75rem;">Quality</label>
-          <div class="tool-control-row">
-            <input type="range" class="slider" id="export-quality" min="0" max="100" value="90">
-            <span class="tool-value" id="quality-value">90%</span>
+        <!-- Export Section -->
+        <div class="export-section" id="export-section">
+          <h3 style="font-size: 0.875rem; margin-bottom: 0.75rem; color: var(--text-secondary);">Export</h3>
+          
+          <div class="tool-control" style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem;">Format</label>
+            <select class="input" id="export-format" style="font-size: 0.875rem;">
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/webp">WebP</option>
+            </select>
           </div>
+          
+          <div class="tool-control" id="quality-control" style="margin-bottom: 0.75rem; display: none;">
+            <label style="font-size: 0.75rem;">Quality</label>
+            <div class="tool-control-row">
+              <input type="range" class="slider" id="export-quality" min="0" max="100" value="90">
+              <span class="tool-value" id="quality-value">90%</span>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%;" id="download-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download
+          </button>
         </div>
-        
-        <button class="btn btn-primary" style="width: 100%;" id="download-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Download
-        </button>
       </div>
       
       <input type="file" id="file-input-editor" accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf" multiple hidden>
@@ -157,15 +165,22 @@
           <button class="btn btn-secondary btn-icon" id="fullscreen-btn" title="Fullscreen">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-              <polyline points="15 10 20 10 20 15"></polyline>
-              <polyline points="9 14 4 14 4 9"></polyline>
             </svg>
           </button>
         </div>
       </div>
       
       <div class="canvas-container" id="canvas-container">
+        <!-- PDF Navigation Sliders -->
+        <div class="pdf-slider-side left" id="pdf-nav-left" style="display: none;">
+          <input type="range" class="slider vertical" id="pdf-page-slider-left" orient="vertical">
+        </div>
+        
         <canvas id="main-canvas" style="cursor: grab;"></canvas>
+        
+        <div class="pdf-slider-side right" id="pdf-nav-right" style="display: none;">
+          <input type="range" class="slider vertical" id="pdf-page-slider-right" orient="vertical">
+        </div>
         
         <div class="canvas-empty-state" id="empty-state">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

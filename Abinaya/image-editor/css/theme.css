@@ -362,6 +362,48 @@ body {
   box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.1);
 }
 
+/* Active slider styling */
+.slider.active {
+  background: var(--accent-primary-hover);
+}
+
+.slider.active::-webkit-slider-thumb {
+  background: white;
+  border: 2px solid var(--accent-primary);
+}
+
+/* Tool Value Styling */
+.tool-value {
+  min-width: 45px;
+  text-align: right;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.tool-value:hover {
+  background: var(--bg-hover);
+  color: var(--accent-primary);
+}
+
+.tool-value-input {
+  width: 45px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: right;
+  outline: none;
+  padding: 1px 3px;
+}
+
+
 /* ===================================
    CARD STYLES
    =================================== */
