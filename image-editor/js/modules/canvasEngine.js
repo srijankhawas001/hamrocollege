@@ -195,6 +195,9 @@ class CanvasEngine {
       case 'brightness':
         this.applyBrightness(ctx, canvas.width, canvas.height, operation.value);
         break;
+      case 'enhance':
+        this.applyEnhance(ctx, canvas.width, canvas.height);
+        break;
       case 'contrast':
         this.applyContrast(ctx, canvas.width, canvas.height, operation.value);
         break;
@@ -295,6 +298,30 @@ class CanvasEngine {
     ];
     
     this.applyConvolution(ctx, width, height, kernel);
+  }
+
+  /**
+   * Apply enhance (convert to pure black/white based on luminance threshold)
+   */
+  applyEnhance(ctx, width, height) {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Calculate luminance
+      const lum = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+      if (lum < 128) {
+        data[i] = 0;
+        data[i + 1] = 0;
+        data[i + 2] = 0;
+      } else {
+        data[i] = 255;
+        data[i + 1] = 255;
+        data[i + 2] = 255;
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
   }
 
   /**

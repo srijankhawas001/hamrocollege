@@ -73,7 +73,8 @@
           <!-- Files will be populated here -->
         </div>
         
-        <!-- Export Section -->
+        <!-- EXPORT SECTION - You can move this entire block where you want in the layout -->
+        <!-- START EXPORT SECTION (moveable) -->
         <div class="export-section" id="export-section">
           <h3 style="font-size: 0.875rem; margin-bottom: 0.75rem; color: var(--text-secondary);">Export</h3>
           
@@ -103,6 +104,7 @@
             Download
           </button>
         </div>
+        <!-- END EXPORT SECTION -->
       </div>
       
       <input type="file" id="file-input-editor" accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf" multiple hidden>
@@ -209,12 +211,12 @@
           <span>Basic</span>
         </button>
         
-        <button class="tool-category-btn" data-tool="enhance">
+        <button class="tool-category-btn" data-tool="adjust">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
           </svg>
-          <span>Enhance</span>
+          <span>Adjust</span>
         </button>
         
         <button class="tool-category-btn" data-tool="filters">

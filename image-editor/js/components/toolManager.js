@@ -18,13 +18,14 @@ class ToolManager {
   }
 
   setupScrollListener() {
-    this.toolContent.addEventListener('scroll', () => {
-      if (this.toolContent.scrollTop > 0) {
-        this.toolCategories.classList.add('expanded');
+    // Toggle tool-category visibility on wheel: scroll down -> hide, scroll up -> show
+    this.toolContent.addEventListener('wheel', (e) => {
+      if (e.deltaY > 0) {
+        this.toolCategories.classList.add('collapsed');
       } else {
-        this.toolCategories.classList.remove('expanded');
+        this.toolCategories.classList.remove('collapsed');
       }
-    });
+    }, { passive: true });
   }
 
   setupEventListeners() {
@@ -51,8 +52,8 @@ class ToolManager {
       case 'basic':
         this.renderBasicTools();
         break;
-      case 'enhance':
-        this.renderEnhanceTools();
+      case 'adjust':
+        this.renderAdjustTools();
         break;
       case 'filters':
         this.renderFilterTools();
@@ -204,87 +205,43 @@ class ToolManager {
     });
   }
 
-  renderEnhanceTools() {
+  renderAdjustTools() {
     this.toolContent.innerHTML = `
       <div class="tool-section">
-        <h3>Adjustments</h3>
-        
+        <h3>Adjust</h3>
+
         <div class="tool-control">
           <label>Brightness</label>
           <div class="tool-control-row">
-            <input type="range" class="slider" id="brightness-slider" min="-100" max="100" value="0">
+            <input type="range" class="slider" id="brightness-slider" min="-10" max="10" value="0">
             <span class="tool-value" id="brightness-value">0</span>
           </div>
         </div>
 
         <div class="tool-control">
-          <label>Contrast</label>
+          <label>Sharpness</label>
           <div class="tool-control-row">
-            <input type="range" class="slider" id="contrast-slider" min="-100" max="100" value="0">
-            <span class="tool-value" id="contrast-value">0</span>
+            <input type="range" class="slider" id="sharpness-slider" min="-10" max="10" value="0">
+            <span class="tool-value" id="sharpness-value">0</span>
           </div>
         </div>
 
         <div class="tool-control">
-          <label>Saturation</label>
-          <div class="tool-control-row">
-            <input type="range" class="slider" id="saturation-slider" min="0" max="2" step="0.1" value="1">
-            <span class="tool-value" id="saturation-value">1.0</span>
+          <label>Enhance (B/W)</label>
+          <div style="display: grid; grid-template-columns: 1fr; gap: 0.5rem;">
+            <button class="btn btn-primary" id="apply-enhance">Apply Enhance</button>
           </div>
         </div>
 
         <button class="btn btn-secondary" style="width: 100%;" id="reset-adjustments">Reset All</button>
       </div>
-
-      <div class="tool-section">
-        <h3>Sharpness</h3>
-        <div class="tool-control">
-          <label>Amount</label>
-          <div class="tool-control-row">
-            <input type="range" class="slider" id="sharpness-slider" min="0" max="100" value="0">
-            <span class="tool-value" id="sharpness-value">0</span>
-          </div>
-        </div>
-        <p style="font-size: 0.75rem; color: var(--text-tertiary);">Double-click slider to reset to default value.</p>
-      </div>
     `;
 
-    this.setupEnhanceToolListeners();
+    this.setupAdjustListeners();
   }
 
   setupEnhanceToolListeners() {
-    this.setupSlider('brightness-slider', 'brightness-value', 'brightness', 0);
-    this.setupSlider('contrast-slider', 'contrast-value', 'contrast', 0);
-    this.setupSlider('saturation-slider', 'saturation-value', 'saturation', 1, 0.1);
-    this.setupSlider('sharpness-slider', 'sharpness-value', 'sharpness', 0);
-    
-    const resetBtn = document.getElementById('reset-adjustments');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        // Reset all sliders and apply edits
-        const brightnessSlider = document.getElementById('brightness-slider');
-        const contrastSlider = document.getElementById('contrast-slider');
-        const saturationSlider = document.getElementById('saturation-slider');
-        const sharpnessSlider = document.getElementById('sharpness-slider');
-        
-        if (brightnessSlider) {
-          brightnessSlider.value = 0;
-          brightnessSlider.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        if (contrastSlider) {
-          contrastSlider.value = 0;
-          contrastSlider.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        if (saturationSlider) {
-          saturationSlider.value = 1;
-          saturationSlider.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        if (sharpnessSlider) {
-          sharpnessSlider.value = 0;
-          sharpnessSlider.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      });
-    }
+    // deprecated: use setupAdjustListeners()
   }
 
   renderFilterTools() {
@@ -590,19 +547,25 @@ class ToolManager {
     slider.addEventListener('input', () => updateValue(slider.value));
     
     slider.addEventListener('change', () => {
-      window.applyEdit({
-        type: operationType,
-        value: parseFloat(slider.value)
-      });
+      if (operationType === 'brightness' || operationType === 'sharpness') {
+        this.applyAdjustment(operationType, parseFloat(slider.value));
+      } else if (operationType === 'rotate') {
+        window.applyEdit({ type: 'rotate', angle: parseFloat(slider.value) });
+      } else {
+        window.applyEdit({ type: operationType, value: parseFloat(slider.value) });
+      }
     });
 
     slider.addEventListener('dblclick', () => {
       slider.value = defaultValue;
       updateValue(defaultValue);
-      window.applyEdit({
-        type: operationType,
-        value: defaultValue
-      });
+      if (operationType === 'brightness' || operationType === 'sharpness') {
+        this.applyAdjustment(operationType, defaultValue);
+      } else if (operationType === 'rotate') {
+        window.applyEdit({ type: 'rotate', angle: defaultValue });
+      } else {
+        window.applyEdit({ type: operationType, value: defaultValue });
+      }
     });
   }
 
@@ -675,11 +638,60 @@ class ToolManager {
     });
   }
 
+  // kept for backward compat if called elsewhere; prefer setupAdjustListeners
   setupEnhanceToolListeners() {
-    this.setupSlider('brightness-slider', 'brightness-value', 'brightness', 0);
-    this.setupSlider('contrast-slider', 'contrast-value', 'contrast', 0);
-    this.setupSlider('saturation-slider', 'saturation-value', 'saturation', 1, 0.1);
-    this.setupSlider('sharpness-slider', 'sharpness-value', 'sharpness', 0);
+  }
+
+  // Centralized adjustment applier
+  applyAdjustment(type, rawValue) {
+    // Map UI range (-10..10) to engine-friendly values where needed
+    let value = rawValue;
+    if (type === 'brightness') {
+      value = Number(rawValue) * 10; // scale to -100..100 for engine
+      window.applyEdit({ type: 'brightness', value });
+    } else if (type === 'sharpness') {
+      value = Number(rawValue) * 10; // map -10..10 -> -100..100
+      window.applyEdit({ type: 'sharpness', value });
+    } else {
+      // fallback for other slider-driven operations
+      window.applyEdit({ type, value: Number(rawValue) });
+    }
+  }
+
+  setupAdjustListeners() {
+    const brightnessSlider = document.getElementById('brightness-slider');
+    const brightnessValue = document.getElementById('brightness-value');
+    const sharpnessSlider = document.getElementById('sharpness-slider');
+    const sharpnessValue = document.getElementById('sharpness-value');
+
+    const updateText = (el, val) => { el.textContent = val; };
+
+    if (brightnessSlider && brightnessValue) {
+      brightnessSlider.addEventListener('input', () => updateText(brightnessValue, brightnessSlider.value));
+      brightnessSlider.addEventListener('change', () => this.applyAdjustment('brightness', brightnessSlider.value));
+      brightnessSlider.addEventListener('dblclick', () => { brightnessSlider.value = 0; updateText(brightnessValue, 0); this.applyAdjustment('brightness', 0); });
+    }
+
+    if (sharpnessSlider && sharpnessValue) {
+      sharpnessSlider.addEventListener('input', () => updateText(sharpnessValue, sharpnessSlider.value));
+      sharpnessSlider.addEventListener('change', () => this.applyAdjustment('sharpness', sharpnessSlider.value));
+      sharpnessSlider.addEventListener('dblclick', () => { sharpnessSlider.value = 0; updateText(sharpnessValue, 0); this.applyAdjustment('sharpness', 0); });
+    }
+
+    const enhanceBtn = document.getElementById('apply-enhance');
+    if (enhanceBtn) {
+      enhanceBtn.addEventListener('click', () => {
+        window.applyEdit({ type: 'enhance' });
+      });
+    }
+
+    const resetBtn = document.getElementById('reset-adjustments');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (brightnessSlider) { brightnessSlider.value = 0; brightnessSlider.dispatchEvent(new Event('change', { bubbles: true })); }
+        if (sharpnessSlider) { sharpnessSlider.value = 0; sharpnessSlider.dispatchEvent(new Event('change', { bubbles: true })); }
+      });
+    }
   }
 
   setupWatermarkListeners() {
