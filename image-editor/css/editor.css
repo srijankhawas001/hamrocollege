@@ -84,50 +84,34 @@
 .theme-btn:hover:not(.active) {
   color: var(--text-primary);
 }
-
-/*
-.theme-btn[data-theme="dark"]:hover:not(.active) {
-  background: hsl(220, 15%, 5%);
-  color: hsl(0, 0%, 30%);
+/* Specific color for fonts */
+.theme-btn[data-theme="light"]{
+  color: white;
 }
-
-.theme-btn[data-theme="light"]:hover:not(.active) {
-  background: hsl(0, 0%, 98%);
-  color: hsl(0, 0%, 90%);
+.theme-btn[data-theme="dark"]{
+  color: white;
 }
-
-.theme-btn[data-theme="system"]:hover:not(.active) {
-  background: var(--bg-hover);
-}
-*/
-
-.theme-btn[data-theme="dark"]:hover:not(.active) {
-  background: hsl(220, 15%, 5%);
-  color: hsl(0, 0%, 30%);
-}
-.theme-btn[data-theme="light"]:hover:not(.active) {
-  background: hsl(0, 0%, 98%);
-  color: hsl(0, 0%, 6%);
-}
-.theme-btn[data-theme="system"]:hover:not(.active) { 
-  background: hsl(0, 0%, 98%);
-  color: hsl(0, 0%, 6%);
+.theme-btn[data-theme="system"]{
+  color: white;
 }
 
 /* Specific theme button hover effects */
 .theme-btn[data-theme="dark"]:hover:not(.active) {
   color: var(--text-primary);
   filter: brightness(0.7);
+  background: hsl(0, 0%, 98%);
 }
 
 .theme-btn[data-theme="light"]:hover:not(.active) {
   color: var(--text-primary);
   filter: brightness(0.7);
+  background: hsl(0, 0%, 98%);
 }
 
 .theme-btn[data-theme="system"]:hover:not(.active) {
-  color: var(--text-primary);
+  color: black;
   filter: brightness(0.7);
+  background: hsl(0, 0%, 98%);
 }
 
 /* User Account Button */
