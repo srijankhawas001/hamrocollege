@@ -85,18 +85,33 @@
   color: var(--text-primary);
 }
 
+/*
 .theme-btn[data-theme="dark"]:hover:not(.active) {
   background: hsl(220, 15%, 5%);
-  color: hsl(0, 0%, 30%); /* Darker text */
+  color: hsl(0, 0%, 30%);
 }
 
 .theme-btn[data-theme="light"]:hover:not(.active) {
   background: hsl(0, 0%, 98%);
-  color: hsl(0, 0%, 90%); /* Lighter text */
+  color: hsl(0, 0%, 90%);
 }
 
 .theme-btn[data-theme="system"]:hover:not(.active) {
   background: var(--bg-hover);
+}
+*/
+
+.theme-btn[data-theme="dark"]:hover:not(.active) {
+  background: hsl(220, 15%, 5%);
+  color: hsl(0, 0%, 30%);
+}
+.theme-btn[data-theme="light"]:hover:not(.active) {
+  background: hsl(0, 0%, 98%);
+  color: hsl(0, 0%, 6%);
+}
+.theme-btn[data-theme="system"]:hover:not(.active) { 
+  background: hsl(0, 0%, 98%);
+  color: hsl(0, 0%, 6%);
 }
 
 /* Specific theme button hover effects */
@@ -107,11 +122,12 @@
 
 .theme-btn[data-theme="light"]:hover:not(.active) {
   color: var(--text-primary);
-  filter: brightness(1.3);
+  filter: brightness(0.7);
 }
 
 .theme-btn[data-theme="system"]:hover:not(.active) {
-  color: var(--accent-primary);
+  color: var(--text-primary);
+  filter: brightness(0.7);
 }
 
 /* User Account Button */
